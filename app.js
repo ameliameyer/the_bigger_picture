@@ -19,7 +19,7 @@ $('logout').onclick=run(()=>signOut(auth));
 $('export').onclick=run(()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(records,null,2)],{type:'application/json'}));const a=el('a');a.href=url;a.download='bigger-picture-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
 for(const p of pages){const b=button(p,()=>{page=p;render()});b.className='hero__link';$('nav').append(b)}
 onAuthStateChanged(auth,async u=>{const token=++epoch;stop?.();stop=null;user=null;records=[];$('view').replaceChildren();$('app').hidden=true;$('nav').hidden=true;$('login').hidden=!!u;if(!u){status('Sign in to access your personal information.');return}try{await getDoc(doc(db,'users',u.uid));if(token!==epoch)return;user=u;stop=onSnapshot(path(),snap=>{if(token!==epoch)return;records=snap.docs.map(d=>({id:d.id,...d.data()}));$('app').hidden=false;$('nav').hidden=false;status('Signed in · Private database connected');render()},err=>{if(token!==epoch)return;$('app').hidden=true;$('nav').hidden=true;records=[];status('Database access denied or unavailable: '+err.message);$('login').hidden=false;signOut(auth).catch(()=>{})})}catch(err){if(token!==epoch)return;await signOut(auth);status('Access denied. Verify your email and check the Firestore allowlist.')}});
-function render(){const v=$('view');v.replaceChildren(el('h2',page));if(page==='My Day'){renderDay(v);return}if(page==='Home'){renderDashboard(v);return}
+function render(){$('logout').parentElement.hidden=page!=='Home';const v=$('view');v.replaceChildren(el('h2',page));if(page==='My Day'){renderDay(v);return}if(page==='Home'){renderDashboard(v);return}
 if(page==='Goals'){renderGoals(v);return}
 if(page==='Habits'){renderHabits(v);return}
 if(page==='Projects'){renderProjects(v);return}
